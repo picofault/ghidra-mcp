@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 257,
+  "total_endpoints": 260,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -19,7 +19,7 @@
     "program": "Program management, script execution, memory read, bookmarks, save",
     "project": "Project lifecycle management",
     "server": "Ghidra Server connection and version control",
-    "symbol": "Create/rename/delete labels, rename data, globals, external locations",
+    "symbol": "Create/rename/delete labels, rename data, globals, external locations, equates",
     "system": "Server-side prompt/automation policy",
     "utility": "Health checks, schema, version, tool control",
     "xref": "Cross-references, call graphs, incoming/outgoing calls, data refs"
@@ -700,6 +700,23 @@
         "headless"
       ],
       "description": "Create enumeration"
+    },
+    {
+      "path": "/create_equate",
+      "method": "POST",
+      "category": "symbol",
+      "params": [
+        "name",
+        "value",
+        "address",
+        "operand_index",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Create an equate: a name for a scalar constant (MMIO register bit field, errno code, syscall number, RTOS constant)."
     },
     {
       "path": "/create_folder",
@@ -2338,6 +2355,22 @@
       "description": "List data types"
     },
     {
+      "path": "/list_equates",
+      "method": "GET",
+      "category": "symbol",
+      "params": [
+        "value",
+        "offset",
+        "limit",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "List the program's equate table — named scalar constants (MMIO bit fields, errno codes, syscall numbers, RTOS constants)."
+    },
+    {
       "path": "/list_exports",
       "method": "GET",
       "category": "listing",
@@ -2866,6 +2899,23 @@
         "headless"
       ],
       "description": "Replace a structure in one step: optionally remove an existing same-named type, then create with fields JSON (same shape as create_struct). Use when resize_struct cannot apply or you are rebuilding layout from get_struct_layout export. Set force=true to delete a non-stub type that is not referenced."
+    },
+    {
+      "path": "/remove_equate",
+      "method": "POST",
+      "category": "symbol",
+      "params": [
+        "name",
+        "address",
+        "operand_index",
+        "delete",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Remove an equate reference or delete a whole equate."
     },
     {
       "path": "/remove_function_tag",

@@ -7,6 +7,7 @@ import com.xebyte.core.CommentService;
 import com.xebyte.core.DataTypeService;
 import com.xebyte.core.DebuggerService;
 import com.xebyte.core.DocumentationHashService;
+import com.xebyte.core.EquateService;
 import com.xebyte.core.FunctionService;
 import com.xebyte.core.GadgetService;
 import com.xebyte.core.ListingService;
@@ -57,6 +58,7 @@ public final class ServiceFactory {
         PatchService patchService = new PatchService(provider, ts);
         GadgetService gadgetService = new GadgetService(provider);
         CfgService cfgService = new CfgService(provider);
+        EquateService equateService = new EquateService(provider, ts);
         PromptPolicyService promptPolicyService = new PromptPolicyService();
 
         HeadlessManagementService headlessManagementService =
@@ -81,6 +83,7 @@ public final class ServiceFactory {
             patchService,
             gadgetService,
             cfgService,
+            equateService,
             headlessManagementService,
             debuggerService,
             promptPolicyService,

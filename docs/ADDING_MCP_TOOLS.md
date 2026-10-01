@@ -324,3 +324,31 @@ Verify mutations by reading state back through an existing read endpoint
   both-servers count. `test_published_counts.py` names it, but only after
   the total/GUI/headless sites are fixed, so sweep for the shared count
   (`audit_server_scope`'s `gui+headless` figure) in the same pass.
+- **`Instruction.toString()` does not substitute equates (12.1.3).** It
+  returns Ghidra's *default* operand form, so every endpoint that renders
+  instructions through `toString()` (`disassemble_function`, CFG
+  include-instructions, gadget text) shows the raw number even with an equate
+  attached. The GUI listing's renderer is
+  `ghidra.program.model.listing.CodeUnitFormat` (SoftwareModeling.jar) —
+  `CodeUnitFormat.DEFAULT.getRepresentationString(instr)` and
+  `getOperandRepresentationString(instr, opIndex)` are what substitute the
+  equate name. Smoke tests for equate/reference markup must verify through
+  `CodeUnitFormat` (e.g. via `run_script_inline` with
+  `GHIDRA_MCP_ALLOW_SCRIPTS=1`), not by re-reading `disassemble_function` —
+  and tool descriptions must not promise the substitution where the endpoint
+  cannot show it. Also note `Equate` has no `deleteEquate()` in 12.1.3:
+  whole-equate deletion is `EquateTable.removeEquate(name)`, and an equate
+  with zero references persists in the table until then.
+- **`run_script_inline` wraps your source unless it contains the literal
+  `extends GhidraScript`.** A fully-qualified
+  `extends ghidra.app.script.GhidraScript` does NOT match the wrapper's
+  substring check, so your complete class gets nested inside a generated
+  `run()` and fails with "illegal start of expression". Import
+  `ghidra.app.script.GhidraScript` and write `extends GhidraScript` — then
+  the source is used verbatim (and `public class X` names the file). The
+  script lands in `~/ghidra_scripts/`; delete it after the smoke test.
+- **Bulk sed on release-history docs overshoots.** Running
+  `sed -i 's/\b243\b/246/g'` across the ratchet file list also rewrites
+  *historical* entries in `docs/releases/README.md` ("241 → 243 tools" in
+  the v5.9.0 section). Fix the current unreleased entry's counts, then
+  `git diff` the file and restore every historical site by hand.

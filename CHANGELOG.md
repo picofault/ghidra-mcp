@@ -6,12 +6,13 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**257 tools** — 243 served by the GUI plugin, 230 by the headless server, 216
+**260 tools** — 246 served by the GUI plugin, 233 by the headless server, 219
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
-`/assemble`), the `exploit` group (`/find_rop_gadgets`), and CFG export
-(`/get_function_cfg`).
+`/assemble`), the `exploit` group (`/find_rop_gadgets`), CFG export
+(`/get_function_cfg`), and equate CRUD (`/list_equates`, `/create_equate`,
+`/remove_equate`).
 
 > **Scope note.** Entries describing `fun-doc/` and `scripts/fid/` were
 > removed from this section on 2026-09-18. Both moved to the `d2-game-exe`
@@ -22,6 +23,21 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **Equate CRUD** — new `symbol`-category endpoints on both servers for
+  Ghidra's name↔scalar-value tables, the way analysts name magic constants
+  (MMIO register bit fields, errno codes, syscall numbers, RTOS constants).
+  `GET /list_equates` lists the table with name, value in hex and signed
+  decimal, and reference count, with an optional `value` filter and
+  offset/limit pagination. `POST /create_equate` takes `name` + `value`
+  (`0x<hex>` or decimal) and optionally attaches the new equate to an
+  instruction operand in the same call (`address` + `operand_index`), which
+  makes the disassembly and decompiler render the name instead of the number;
+  duplicate names are rejected with an error that reports the existing
+  equate's value, and an attach whose operand constant differs from the
+  equate value comes back with a warning. `POST /remove_equate` detaches one
+  reference (`address` + `operand_index`) or deletes the whole equate
+  (`delete=true`); both mutations are transaction-wrapped and undoable.
 
 - **Control-flow graph export** — `GET /get_function_cfg` (category
   `analysis`, both servers) returns a function's real basic-block graph from
