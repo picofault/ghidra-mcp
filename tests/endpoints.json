@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 260,
+  "total_endpoints": 261,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -1349,6 +1349,27 @@
         "headless"
       ],
       "description": "Replace a structure field with an embedded struct type by value (e.g. Rectangle inside LayoutNode). Uses modify_struct_field internally."
+    },
+    {
+      "path": "/emulate_execute",
+      "method": "POST",
+      "category": "emulation",
+      "params": [
+        "address",
+        "registers",
+        "memory_writes",
+        "end_address",
+        "max_instructions",
+        "read_registers",
+        "read_memory",
+        "track_writes",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Execute code from any start address in the P-code emulator with controlled registers and memory, then read back the resulting state. Serves string-decryption runs, ROP gadget dry-runs (track_writes reports written memory), and debugger-free return-value evaluation; sandboxed, never mutates the program."
     },
     {
       "path": "/emulate_function",

@@ -6,13 +6,13 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**260 tools** — 246 served by the GUI plugin, 233 by the headless server, 219
+**261 tools** — 247 served by the GUI plugin, 234 by the headless server, 220
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
 `/assemble`), the `exploit` group (`/find_rop_gadgets`), CFG export
-(`/get_function_cfg`), and equate CRUD (`/list_equates`, `/create_equate`,
-`/remove_equate`).
+(`/get_function_cfg`), equate CRUD (`/list_equates`, `/create_equate`,
+`/remove_equate`), and interactive-style emulation (`/emulate_execute`).
 
 > **Scope note.** Entries describing `fun-doc/` and `scripts/fid/` were
 > removed from this section on 2026-09-18. Both moved to the `d2-game-exe`
@@ -23,6 +23,26 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **Interactive-style emulation** — `POST /emulate_execute` (category
+  `emulation`, both servers) runs Ghidra's P-code emulator from ANY start
+  address with controlled inputs and reports exactly the state requested, for
+  firmware/exploit workflows: run an obfuscated string-decryption routine and
+  read the decoded buffer back, dry-run a ROP gadget with controlled
+  registers and observe its effects, or evaluate a function's return value
+  for given arguments without a debugger. Params: `address` (start; need not
+  be a function entry), `registers` (JSON object of seeds, hex or decimal),
+  `memory_writes` (JSON array of `{address, bytes(hex)}` to seed buffers or a
+  fake stack), `end_address` (debugger-style breakpoint — stops BEFORE the
+  instruction there), `max_instructions` (default 1000, hard cap 100000),
+  `read_registers` (empty = the architecture's general-purpose base
+  registers), `read_memory` (regions read back from the emulator's post-run
+  state as hex plus best-effort ASCII), and `track_writes` (reports every
+  memory range the emulated code wrote, via `EmulatorHelper`'s memory-write
+  tracking). A stack pointer and return-address sentinel are pre-seeded so a
+  RET ends the run; `stop_reason` is `end_address`, `return`,
+  `max_instructions`, or `fault`. Execution is fully sandboxed — the emulator
+  works on a private copy of program memory and never mutates the program.
 
 - **Equate CRUD** — new `symbol`-category endpoints on both servers for
   Ghidra's name↔scalar-value tables, the way analysts name magic constants

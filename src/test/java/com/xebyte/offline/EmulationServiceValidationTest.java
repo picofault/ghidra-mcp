@@ -37,4 +37,23 @@ public class EmulationServiceValidationTest extends TestCase {
         assertTrue("expected 'No program loaded', got: " + r.toJson(),
                 r.toJson().contains("No program loaded"));
     }
+
+    public void testEmulateExecuteDegradesGracefully() {
+        Response r = emulation.emulateExecute("0x401000", "", "", "", 1000, "", "", false, "");
+        assertNotNull(r);
+        assertTrue("expected 'No program loaded', got: " + r.toJson(),
+                r.toJson().contains("No program loaded"));
+    }
+
+    public void testEmulateExecuteDegradesGracefullyWithSeeds() {
+        // Registers/memory_writes/read_memory JSON must not change the
+        // "no program loaded" failure path -- all are validated only after
+        // the program lookup succeeds.
+        Response r = emulation.emulateExecute("0x401000", "{\"RAX\": \"0x1\"}",
+                "[{\"address\": \"0x7ffe0000\", \"bytes\": \"4142\"}]", "", 1000, "RAX",
+                "[{\"address\": \"0x7ffe0000\", \"length\": 2}]", true, "");
+        assertNotNull(r);
+        assertTrue("expected 'No program loaded', got: " + r.toJson(),
+                r.toJson().contains("No program loaded"));
+    }
 }

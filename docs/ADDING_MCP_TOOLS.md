@@ -352,3 +352,28 @@ Verify mutations by reading state back through an existing read endpoint
   *historical* entries in `docs/releases/README.md` ("241 → 243 tools" in
   the v5.9.0 section). Fix the current unreleased entry's counts, then
   `git diff` the file and restore every historical site by hand.
+- **`EmulatorHelper`'s memory-write tracking covers the register space too.**
+  `enableMemoryWriteTracking(true)` adds a `MemoryAccessFilter` that sees
+  every space, and p-code execution writes RSP/RIP into the `register:` space,
+  so `getTrackedMemoryWriteSet()` comes back polluted with
+  `register:XXXX-register:XXXX` ranges. Filter to `space.isMemorySpace()`
+  before reporting "what memory did this code touch" (there is no
+  `AddressSpace.TYPE_MEMORY` constant in 12.1.3 — the predicate is
+  `isMemorySpace()`). Enable tracking only AFTER seeding registers/memory so
+  the caller's own setup writes never appear in the set.
+- **"All base registers" is not a usable default register set on x86.**
+  Filtering `language.getRegisters()` by `isBaseRegister()` minus
+  HIDDEN/CONTEXT/FP/VECTOR yields 100+ entries on x86-64 (CR*, DR*,
+  individual flag bits, FPU state, BND/K regs — ST0 does not carry TYPE_FP).
+  A default "general-purpose" set needs a curated per-processor list
+  (x86/AARCH64/ARM/MIPS/PowerPC), dropping names the language variant lacks
+  (`program.getRegister(name) != null`), with the generic filter as fallback.
+- **`EmulatorHelper` silently zero-fills uninitialized reads.** Its default
+  `uninitializedRead` handler logs and continues (except during instruction
+  decode, which faults); `unknownAddress` faults. So emulated code reading
+  memory the caller never seeded sees 0 with no error — the tool description
+  must tell callers to seed every input — and a jump to an unmapped target
+  surfaces as `fault` with "Instruction decode failed (invalid memory)". Also
+  seed the stack via `emu.getStackPointerRegister()` (arch-agnostic), never a
+  hardcoded ESP/RSP name, and write a pointer-width return-address sentinel
+  (endianness-aware) so a RET gives you a clean stop condition.
