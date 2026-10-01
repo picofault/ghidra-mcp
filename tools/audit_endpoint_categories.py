@@ -53,6 +53,7 @@ SCANNED_SERVICES = (
     "ProgramScriptService",
     "EmulationService",
     "PatchService",
+    "GadgetService",
     "HeadlessManagementService",
     "DebuggerService",
     "PromptPolicyService",

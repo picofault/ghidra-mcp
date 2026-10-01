@@ -6,11 +6,11 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**255 tools** — 241 served by the GUI plugin, 228 by the headless server, 214
+**256 tools** — 242 served by the GUI plugin, 229 by the headless server, 215
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
-`/assemble`).
+`/assemble`) and the `exploit` group (`/find_rop_gadgets`).
 
 > **Scope note.** Entries describing `fun-doc/` and `scripts/fid/` were
 > removed from this section on 2026-09-18. Both moved to the `d2-game-exe`
@@ -21,6 +21,27 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **ROP/JOP gadget search** — new `exploit` tool group, on both the GUI
+  plugin and the headless server. `GET /find_rop_gadgets` scans executable,
+  initialized memory for short instruction sequences ending in a control-flow
+  terminator, classified from Ghidra's `FlowType`: `terminator=ret` (default)
+  for classic ROP returns, `jmp` for indirect jumps (JOP / stack-pivot
+  dispatch), `call` for indirect calls (COOP), `all` for everything. A chain
+  is only accepted while each instruction falls through to the next, so
+  mid-chain unconditional branches are rejected. Params: `filter`
+  (case-insensitive substring on the gadget text, e.g. "pop rdi"),
+  `max_instructions` (default 6), `start`/`end` range, `max_results` cap with
+  a `truncated` flag, and `offset`/`limit` pagination with an exact `total`.
+  The default aligned scan walks the existing listing backwards from each
+  terminator (fast); `include_unaligned=true` adds a byte-level scan with
+  Ghidra's `PseudoDisassembler` that finds unintended gadgets (the classic
+  `pop rdi ; ret` hiding inside `pop r15`) — slow on large binaries, so it is
+  bound by `start`/`end`. Each gadget reports address, terminator kind,
+  disassembly lines, hex bytes, and lengths; unintended gadgets found only by
+  the byte scan are marked `unaligned: true`. Thumb/misaligned ARM via the
+  byte scan is experimental (addresses are raw byte offsets; set the T-bit
+  when the target needs it).
 
 - **Byte patching** — new `patching` tool group, on both the GUI plugin and
   the headless server. `/patch_bytes` writes raw bytes into program memory

@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 255,
+  "total_endpoints": 256,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -9,6 +9,7 @@
     "debugger": "Ghidra TraceRmi debugger control (GUI only)",
     "documentation": "Function hashing, cross-binary documentation transfer, undocumented discovery",
     "emulation": "P-code emulation (run functions with controlled inputs)",
+    "exploit": "ROP/JOP gadget search for exploit development",
     "function": "Decompile, disassemble, rename, prototype, variables, create/delete functions",
     "getter": "Current GUI context (address, function, selection)",
     "headless": "Headless server program management (no GUI required)",
@@ -1468,6 +1469,28 @@
         "headless"
       ],
       "description": "Find next undefined function"
+    },
+    {
+      "path": "/find_rop_gadgets",
+      "method": "GET",
+      "category": "exploit",
+      "params": [
+        "program",
+        "terminator",
+        "max_instructions",
+        "filter",
+        "start",
+        "end",
+        "include_unaligned",
+        "max_results",
+        "offset",
+        "limit"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Search executable memory for ROP/JOP gadgets: short instruction sequences ending in a control-flow terminator. terminator=ret (default) finds sequences ending in a return (classic ROP); terminator=jmp finds sequences ending in an indirect jump like 'JMP RSP' (JOP / stack-pivot dispatch); terminator=call finds sequences ending in an indirect call (COOP); terminator=all reports every kind. Each gadget executes linearly: every instruction falls through to the next (mid-chain unconditional branches are rejected; conditional branches and calls may appear since they fall through). filter is a case-insensitive substring matched against the gadget text, e.g. \"pop rdi\" or \"pop rdi ; ret\". Addresses are the program's loaded addresses — directly usable in an exploit when the target has no ASLR / fixed load base (typical firmware). By default only instructions Ghidra has already defined are considered (fast). include_unaligned=true additionally disassembles at every byte offset, finding unintended gadgets (e.g. 'pop rdi ; ret' hiding inside 'pop r15') — much slower on large binaries, so bound it with start/end. Thumb/misaligned ARM support via include_unaligned is experimental: gadget addresses are raw byte offsets (set the T-bit, addr|1, when the target needs it). Results are capped at max_results (default 10000); when the cap is hit, truncated=true and total is a lower bound."
     },
     {
       "path": "/find_similar_functions",

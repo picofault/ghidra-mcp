@@ -278,3 +278,28 @@ Verify mutations by reading state back through an existing read endpoint
   each one names the file and the expected number.
 - **Description first sentence == README summary.** The README generator uses
   the first sentence of the catalog description. Front-load it.
+- **Headless `--file` import does not fully auto-analyze.** The listing after
+  import is sparse (PLT and import-time code only; function bodies stay
+  undefined — `disassemble_function` reports `body_degenerate: true`). Any
+  endpoint that walks defined instructions (gadget scans, instruction search,
+  xref-based tools) sees almost nothing until you `POST /reanalyze` and wait
+  for `analyzing: false`. Smoke tests for such endpoints must reanalyze first
+  or they will "pass" against a near-empty listing.
+- **There is no `FlowType.RETURN` constant (12.1.3).** Returns are the
+  TERMINATOR family: classify with `flowType.isTerminal() && !isCall() &&
+  !isJump()`; JOP dispatchers are `isJump() && isComputed()`; COOP
+  dispatchers are `isCall() && isComputed()`. And `FlowType` lives in
+  `ghidra.program.model.symbol`, not `listing` — check the jar, not your
+  memory.
+- **`PseudoDisassembler` (`ghidra.app.util`, headless-safe) disassembles at
+  any address without mutating the program** — the way to find unintended
+  (mid-instruction) gadgets that the listing cannot represent.
+  `getNormalizedDisassemblyAddress(program, addr)` maps odd offsets to
+  aligned Thumb addresses; it is identity on x86. Listing `Instruction`s and
+  `PseudoInstruction`s expose the same surface (`getFlowType`,
+  `getFallThrough`, `getBytes`, `toString`), so one record builder can serve
+  both scan engines.
+- **PIE binaries are rebased in Ghidra.** `/bin/true` loads at image base
+  `0x100000`, so every address is `objdump` vaddr + `0x100000`. Cross-check
+  smoke-test gadgets against objdump with that delta or you will chase
+  ghosts.
