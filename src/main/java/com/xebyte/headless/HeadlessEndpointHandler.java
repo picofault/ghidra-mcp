@@ -61,6 +61,7 @@ public class HeadlessEndpointHandler {
     private final com.xebyte.core.EmulationService emulationService;
     private final com.xebyte.core.PatchService patchService;
     private final com.xebyte.core.GadgetService gadgetService;
+    private final com.xebyte.core.CfgService cfgService;
 
     public HeadlessEndpointHandler(ProgramProvider programProvider, ThreadingStrategy threadingStrategy) {
         this.programProvider = programProvider;
@@ -82,6 +83,7 @@ public class HeadlessEndpointHandler {
         this.emulationService = new com.xebyte.core.EmulationService(programProvider, threadingStrategy);
         this.patchService = new com.xebyte.core.PatchService(programProvider, threadingStrategy);
         this.gadgetService = new com.xebyte.core.GadgetService(programProvider);
+        this.cfgService = new com.xebyte.core.CfgService(programProvider);
     }
 
     // ==========================================================================
@@ -101,6 +103,7 @@ public class HeadlessEndpointHandler {
     public com.xebyte.core.EmulationService getEmulationService() { return emulationService; }
     public com.xebyte.core.PatchService getPatchService() { return patchService; }
     public com.xebyte.core.GadgetService getGadgetService() { return gadgetService; }
+    public com.xebyte.core.CfgService getCfgService() { return cfgService; }
     public ProgramProvider getProgramProvider() { return programProvider; }
 
     // ==========================================================================

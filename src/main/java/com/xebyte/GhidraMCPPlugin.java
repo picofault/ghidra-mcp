@@ -185,7 +185,7 @@ class VersionInfo {
     category = PluginCategoryNames.COMMON,
     shortDescription = "GhidraMCP - HTTP server plugin",
     description = "GhidraMCP - Starts an embedded HTTP server to expose program data via REST API and MCP bridge. " +
-                  "Provides 242 endpoints for reverse engineering automation. " +
+                  "Provides 243 endpoints for reverse engineering automation. " +
                   "Port configurable via Tool Options. " +
                   "Features: function analysis, decompilation, symbol management, cross-references, label operations, " +
                   "high-performance batch data analysis, field-level structure analysis, advanced call graph analysis, " +
@@ -288,6 +288,7 @@ public class GhidraMCPPlugin extends Plugin implements ApplicationLevelPlugin {
     private final com.xebyte.core.DebuggerService debuggerService;
     private final com.xebyte.core.PatchService patchService;
     private final com.xebyte.core.GadgetService gadgetService;
+    private final com.xebyte.core.CfgService cfgService;
     private final com.xebyte.core.PromptPolicyService promptPolicyService;
 
     public GhidraMCPPlugin(PluginTool tool) {
@@ -313,6 +314,7 @@ public class GhidraMCPPlugin extends Plugin implements ApplicationLevelPlugin {
         this.debuggerService = new com.xebyte.core.DebuggerService(programProvider, threadingStrategy, tool);
         this.patchService = new com.xebyte.core.PatchService(programProvider, threadingStrategy);
         this.gadgetService = new com.xebyte.core.GadgetService(programProvider);
+        this.cfgService = new com.xebyte.core.CfgService(programProvider);
         this.promptPolicyService = new com.xebyte.core.PromptPolicyService();
         Msg.info(this, "============================================");
         Msg.info(this, "GhidraMCP " + VersionInfo.getFullVersion());
@@ -654,7 +656,7 @@ public class GhidraMCPPlugin extends Plugin implements ApplicationLevelPlugin {
             listingService, functionService, commentService, symbolLabelService,
             xrefCallGraphService, dataTypeService, analysisService,
             documentationHashService, malwareSecurityService, programScriptService,
-            emulationService, debuggerService, patchService, gadgetService, promptPolicyService);
+            emulationService, debuggerService, patchService, gadgetService, cfgService, promptPolicyService);
 
         for (EndpointDef ep : scanner.getEndpoints()) {
             server.createContext(ep.path(), safeHandler(exchange -> {

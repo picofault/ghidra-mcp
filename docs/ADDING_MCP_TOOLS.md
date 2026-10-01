@@ -303,3 +303,24 @@ Verify mutations by reading state back through an existing read endpoint
   `0x100000`, so every address is `objdump` vaddr + `0x100000`. Cross-check
   smoke-test gadgets against objdump with that delta or you will chase
   ghosts.
+- **`BasicBlockModel` destinations can leave the function.** Tail calls/jumps
+  produce `CodeBlockReference`s whose destination block is outside
+  `func.getBody()`. An intra-function CFG must filter edges to destination
+  starts inside the body, and compute `is_exit` *after* that filtering, or
+  tail-calling blocks never show as exits. In return, `CodeBlock` is an
+  `AddressSetView`, so `listing.getInstructions(block, true)` feeds an
+  include-instructions mode directly. Fall-through edges report
+  `hasFallthrough()` with neither `isJump()` nor `isCall()`; classify in the
+  order call → conditional-jump → jump (`isComputed()` → indirect) →
+  fallthrough.
+- **PLT thunks and stripped binaries shape the smoke test.** A PLT thunk
+  (`free`, `abort`, ...) has a degenerate body — the CFG endpoint's
+  "undefined or empty body" error path *is* the correct response there. And a
+  stripped `/bin/true` has no `main` symbol: target the ELF entry instead
+  (`readelf -h` entry + the 0x100000 PIE delta; Ghidra names it `entry`) or
+  a `FUN_*` address, and cross-check by address, not by name.
+- **The shared-count ratchet site is easy to miss.** Beyond the 256/242/229
+  literals, `CLAUDE.md` carries "215 endpoints are on both" — the
+  both-servers count. `test_published_counts.py` names it, but only after
+  the total/GUI/headless sites are fixed, so sweep for the shared count
+  (`audit_server_scope`'s `gui+headless` figure) in the same pass.

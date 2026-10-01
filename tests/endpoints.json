@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 256,
+  "total_endpoints": 257,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -1806,6 +1806,22 @@
         "headless"
       ],
       "description": "Get calling functions"
+    },
+    {
+      "path": "/get_function_cfg",
+      "method": "GET",
+      "category": "analysis",
+      "params": [
+        "function",
+        "program",
+        "include_instructions",
+        "max_nodes"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Export a function's control-flow graph: basic blocks (nodes) and the flows between them (edges), from Ghidra's BasicBlockModel. Use it for path analysis, finding loop bodies, spotting switch dispatch, then drill into a block's code with disassemble_function / decompile or include_instructions=true. Edge types: fallthrough, jump, conditional-jump, indirect-jump, call. Node output is capped at max_nodes (default 2000) with a truncated flag."
     },
     {
       "path": "/get_function_count",

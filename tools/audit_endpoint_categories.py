@@ -54,6 +54,7 @@ SCANNED_SERVICES = (
     "EmulationService",
     "PatchService",
     "GadgetService",
+    "CfgService",
     "HeadlessManagementService",
     "DebuggerService",
     "PromptPolicyService",

@@ -2,6 +2,7 @@ package com.xebyte.offline;
 
 import com.xebyte.core.AnalysisService;
 import com.xebyte.core.BinaryComparisonService;
+import com.xebyte.core.CfgService;
 import com.xebyte.core.CommentService;
 import com.xebyte.core.DataTypeService;
 import com.xebyte.core.DebuggerService;
@@ -55,6 +56,7 @@ public final class ServiceFactory {
         EmulationService emulationService = new EmulationService(provider, ts);
         PatchService patchService = new PatchService(provider, ts);
         GadgetService gadgetService = new GadgetService(provider);
+        CfgService cfgService = new CfgService(provider);
         PromptPolicyService promptPolicyService = new PromptPolicyService();
 
         HeadlessManagementService headlessManagementService =
@@ -78,6 +80,7 @@ public final class ServiceFactory {
             emulationService,
             patchService,
             gadgetService,
+            cfgService,
             headlessManagementService,
             debuggerService,
             promptPolicyService,

@@ -6,11 +6,12 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**256 tools** — 242 served by the GUI plugin, 229 by the headless server, 215
+**257 tools** — 243 served by the GUI plugin, 230 by the headless server, 216
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
-`/assemble`) and the `exploit` group (`/find_rop_gadgets`).
+`/assemble`), the `exploit` group (`/find_rop_gadgets`), and CFG export
+(`/get_function_cfg`).
 
 > **Scope note.** Entries describing `fun-doc/` and `scripts/fid/` were
 > removed from this section on 2026-09-18. Both moved to the `d2-game-exe`
@@ -21,6 +22,24 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **Control-flow graph export** — `GET /get_function_cfg` (category
+  `analysis`, both servers) returns a function's real basic-block graph from
+  Ghidra's `BasicBlockModel`, so agents no longer reconstruct control flow
+  from disassembly text. Params: `function` (name or address; an address
+  inside the body also resolves), `include_instructions` (default false —
+  each node also carries its disassembly lines), and `max_nodes` (default
+  2000) with a `truncated` flag plus an exact `total_nodes`, so switch-heavy
+  firmware parsers cannot OOM the response. Nodes carry a stable 0-based id,
+  start/end address, `length_bytes`, `instruction_count`, `is_entry`, and
+  `is_exit` (no intra-function out-edges: returns, noreturn calls, tail
+  jumps). Edges reference node ids with a `type` derived from the block
+  exit's `FlowType`: `fallthrough`, `jump`, `conditional-jump`,
+  `indirect-jump` (computed target — the switch-dispatch shape), or `call`.
+  Edges cover intra-function flow only; ordinary calls stay inside the
+  calling block. Built for path analysis ("is there a path from A to B"),
+  loop-body discovery (back edges), and switch-dispatch spotting, paired with
+  `disassemble_function` / `decompile` for the code inside a block.
 
 - **ROP/JOP gadget search** — new `exploit` tool group, on both the GUI
   plugin and the headless server. `GET /find_rop_gadgets` scans executable,
