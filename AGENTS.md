@@ -7,7 +7,7 @@ You are a coding agent working on **ghidra-mcp**, a Model Context Protocol serve
 - **Repo**: <https://github.com/bethington/ghidra-mcp>
 - **Version**: 7.0.0
 - **Language**: Java (Ghidra extension) + Python (MCP bridge)
-- **Key feature**: 253 MCP tools for binary analysis, knowledge database, BSim integration, headless server support, AI documentation workflows
+- **Key feature**: 255 MCP tools for binary analysis, knowledge database, BSim integration, headless server support, AI documentation workflows
 
 ## Directory Structure
 
@@ -33,6 +33,7 @@ You are a coding agent working on **ghidra-mcp**, a Model Context Protocol serve
 - Update CHANGELOG.md for user-facing changes
 - Create PRs for review (don't push directly to main)
 - Use `python -m tools.setup bump-version --new X.Y.Z` to bump version across all maintained files atomically
+- Adding a new MCP tool/endpoint? Follow the recipe in `docs/ADDING_MCP_TOOLS.md` (service wiring, catalog, count ratchet, verification)
 
 ## Commands
 

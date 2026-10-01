@@ -9,6 +9,7 @@ import com.xebyte.core.DocumentationHashService;
 import com.xebyte.core.FunctionService;
 import com.xebyte.core.ListingService;
 import com.xebyte.core.MalwareSecurityService;
+import com.xebyte.core.PatchService;
 import com.xebyte.core.ProgramProvider;
 import com.xebyte.core.EmulationService;
 import com.xebyte.core.ProgramScriptService;
@@ -51,6 +52,7 @@ public final class ServiceFactory {
         MalwareSecurityService malwareSecurityService = new MalwareSecurityService(provider, ts);
         ProgramScriptService programScriptService = new ProgramScriptService(provider, ts);
         EmulationService emulationService = new EmulationService(provider, ts);
+        PatchService patchService = new PatchService(provider, ts);
         PromptPolicyService promptPolicyService = new PromptPolicyService();
 
         HeadlessManagementService headlessManagementService =
@@ -72,6 +74,7 @@ public final class ServiceFactory {
             malwareSecurityService,
             programScriptService,
             emulationService,
+            patchService,
             headlessManagementService,
             debuggerService,
             promptPolicyService,

@@ -6,10 +6,11 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**253 tools** — 239 served by the GUI plugin, 226 by the headless server, 212
+**255 tools** — 241 served by the GUI plugin, 228 by the headless server, 214
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
-the same cycle.
+the same cycle, followed by the `patching` group (`/patch_bytes`,
+`/assemble`).
 
 > **Scope note.** Entries describing `fun-doc/` and `scripts/fid/` were
 > removed from this section on 2026-09-18. Both moved to the `d2-game-exe`
@@ -20,6 +21,19 @@ the same cycle.
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **Byte patching** — new `patching` tool group, on both the GUI plugin and
+  the headless server. `/patch_bytes` writes raw bytes into program memory
+  (hex string, spaced `"90 90"` or compact `"9090"`; range must sit inside one
+  initialized memory block) and returns the previous bytes so a patch can be
+  reverted, plus a warning when the patched range overlaps existing code units
+  (listing now stale; follow up with `clear_flow_and_repair` or `reanalyze`).
+  `/assemble` patches by mnemonic through Ghidra's built-in assembler
+  (`Assemblers.getAssembler(program)`): pass one instruction or a
+  `;`-separated list, and it validates every line at its final address before
+  touching the program, then writes and disassembles in one transaction like
+  the GUI's Patch Instruction action, returning the assembled bytes, the
+  disassembly now at the address, and the previous bytes.
 
 - **Transport-aware doctor mode** for `tools/ghidra_server_health_check.py`.
   `--mode health` remains the original single `/check_connection` probe.

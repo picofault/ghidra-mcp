@@ -51,6 +51,7 @@ CATEGORY_SECTIONS: dict[str, tuple[str, str]] = {
     "documentation": ("Cross-Binary Documentation & Archive", ""),
     "utility": ("Health, Schema & Tool Control", ""),
     "emulation": ("Emulation", ""),
+    "patching": ("Patching & Byte Editing", ""),
     "server": ("Ghidra Server & Version Control", ""),
     "debugger": (
         "Debugger (Ghidra TraceRmi)",
