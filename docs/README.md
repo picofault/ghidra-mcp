@@ -15,6 +15,8 @@ release notes for Ghidra MCP.
 - Read [connection-triage-guide.md](connection-triage-guide.md) when an MCP client
   reports missing tools, an empty instance list, or a closed transport.
 - Read `NAMING_CONVENTIONS.md` for naming and file-layout guidance.
+- Read `ADDING_MCP_TOOLS.md` before adding a new MCP tool/endpoint — service
+  wiring, the endpoint catalog, the count ratchet, and the verification recipe.
 - Read `releases/README.md` for version-specific release notes.
 - Read `project-management/FUNDABLE_ROADMAP.md` for the draft community
   roadmap of large RFC-sized efforts and sponsorship-priority signals.
@@ -40,6 +42,7 @@ docs/
 ├── images/install/
 ├── PROJECT_STRUCTURE.md
 ├── NAMING_CONVENTIONS.md
+├── ADDING_MCP_TOOLS.md
 ├── HUNGARIAN_NOTATION.md
 ├── PLATE_COMMENT_BEST_PRACTICES.md
 ├── GHIDRA_VARIABLE_APIS_EXPLAINED.md
