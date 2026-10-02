@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 261,
+  "total_endpoints": 264,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -22,7 +22,8 @@
     "symbol": "Create/rename/delete labels, rename data, globals, external locations, equates",
     "system": "Server-side prompt/automation policy",
     "utility": "Health checks, schema, version, tool control",
-    "xref": "Cross-references, call graphs, incoming/outgoing calls, data refs"
+    "xref": "Cross-references, call graphs, incoming/outgoing calls, data refs",
+    "memorymap": "Memory map / MMIO: structured block+space dump, overlay regions, CMSIS-SVD peripheral import"
   },
   "endpoints": [
     {
@@ -820,6 +821,23 @@
         "headless"
       ],
       "description": "Create memory block, optionally initialized with byte contents (hex or base64)"
+    },
+    {
+      "path": "/create_overlay_region",
+      "method": "POST",
+      "category": "memorymap",
+      "params": [
+        "name",
+        "overlay_address",
+        "source_address",
+        "length",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Create an overlay address space over an existing initialized region for bank switching / ROM shadowing analysis; the block byte-maps 1:1 through to the source region (no bytes copied), and the response reports the generated overlay space name."
     },
     {
       "path": "/create_pointer_type",
@@ -2028,6 +2046,19 @@
       "description": "Dump the program's language description: address spaces, registers, default symbols, endianness, pointer size (issue #192). Use for P-code emulators / ML pipelines that need the SLEIGH-level facts. include_registers/include_default_symbols toggle expensive sections."
     },
     {
+      "path": "/get_memory_map",
+      "method": "GET",
+      "category": "memorymap",
+      "params": [
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "One-shot structured dump of the program's memory map: every memory block (name, start/end/size, rwx permissions, volatile flag, source, initialized/uninitialized/overlay, block type, comment) plus every address space with its type and, for overlay spaces, the base space it overlays."
+    },
+    {
       "path": "/get_metadata",
       "method": "GET",
       "category": "program",
@@ -2220,6 +2251,21 @@
         "headless"
       ],
       "description": "Import a Ghidra Zip File (.gzf) into the currently open project as a new DomainFile under target_folder (default '/'). Refuses to overwrite a program that is currently loaded in memory."
+    },
+    {
+      "path": "/import_svd",
+      "method": "POST",
+      "category": "memorymap",
+      "params": [
+        "svd_content",
+        "svd_path",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Import a CMSIS-SVD device description (vendor XML from a device pack) and materialize it for bare-metal firmware analysis: one structure type per peripheral with a member per register (bit-field members for nested fields where they pack cleanly), one volatile memory block per peripheral address range, and a label at each peripheral base address."
     },
     {
       "path": "/inspect_memory_content",

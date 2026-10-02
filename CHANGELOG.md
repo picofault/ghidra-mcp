@@ -6,7 +6,7 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**261 tools** — 247 served by the GUI plugin, 234 by the headless server, 220
+**264 tools** — 250 served by the GUI plugin, 237 by the headless server, 223
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
@@ -23,6 +23,29 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **Memory map / MMIO pack** — new `memorymap`-category group on both servers
+  for bare-metal and firmware targets, where the decompiler shows raw magic
+  addresses (`*(uint *)0x40020014`) instead of peripheral structure until the
+  memory map is labeled. `GET /get_memory_map` is the one-shot "what does my
+  firmware's memory look like" dump: every memory block (name, start/end/size,
+  rwx permissions, volatile flag, source, initialized/uninitialized/overlay,
+  block type, comment) plus every address space with its type and, for overlay
+  spaces, the base space it overlays. `POST /create_overlay_region` creates an
+  overlay address space over an existing initialized region — Ghidra's model
+  for bank switching / ROM shadowing — with a 1:1 byte mapping through to the
+  source bytes (nothing copied), reported back with the generated space name so
+  `read_memory` can target `<overlay_space>:<hex>`. `POST /import_svd` parses a
+  CMSIS-SVD device description (inline XML or a server-side file path, JDK
+  built-in XML parser) and materializes it: one `<peripheral>_T` structure per
+  peripheral with a member per register (offset from `addressOffset`, width
+  from `size`), real Ghidra bit-field members for nested `<field>` definitions
+  where they pack contiguously, one volatile uninitialized memory block per
+  peripheral address range, and a label at each peripheral base address;
+  clusters, dim arrays, and unparseable entries are skipped gracefully and
+  reported per peripheral in the response. Feed the vendor SVD from the device
+  pack before analyzing bare-metal firmware, then apply the generated struct
+  types at reference sites via the existing `datatype` endpoints.
 
 - **Interactive-style emulation** — `POST /emulate_execute` (category
   `emulation`, both servers) runs Ghidra's P-code emulator from ANY start

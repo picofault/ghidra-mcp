@@ -53,6 +53,7 @@ CATEGORY_SECTIONS: dict[str, tuple[str, str]] = {
     "emulation": ("Emulation", ""),
     "exploit": ("Exploit Development", ""),
     "patching": ("Patching & Byte Editing", ""),
+    "memorymap": ("Memory Map & MMIO", ""),
     "server": ("Ghidra Server & Version Control", ""),
     "debugger": (
         "Debugger (Ghidra TraceRmi)",

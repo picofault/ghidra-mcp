@@ -377,3 +377,31 @@ Verify mutations by reading state back through an existing read endpoint
   seed the stack via `emu.getStackPointerRegister()` (arch-agnostic), never a
   hardcoded ESP/RSP name, and write a pointer-width return-address sentinel
   (endianness-aware) so a RET gives you a clean stop condition.
+- **A guard on a never-assigned variable compiles clean and silently
+  disables the feature.** `if (structSize > 0)` around struct materialization
+  does not fail the build when the variable is initialized to `0` and no
+  assignment path ever fires — the endpoint returns "success" with zero
+  structs created. Compilation is not verification: smoke-test the
+  materialization end-to-end (count what actually landed in the DataTypeManager,
+  not just what the JSON reports) against a fixture that exercises every
+  branch.
+- **Hand-written test SVDs only validate the parser against its own author's
+  assumptions.** A synthetic fixture exercises exactly the shapes you
+  expected; real vendor files carry combinations you never imagined
+  (`derivedFrom` chains, `<dim>`-expanded registers, `<cluster>` nesting,
+  reset-value templates). Always smoke-test `/import_svd` with a real device
+  SVD (e.g. STM32F405 from CMSIS) before declaring the importer done.
+- **CMSIS-SVD `derivedFrom` must be parsed as a sentinel and resolved after
+  the full parse.** Storing `0`/`null` for the reference and resolving in a
+  second pass handles forward references (a derived peripheral can precede
+  its base in document order); resolving eagerly during the first pass finds
+  the target map empty and every forward reference gets skipped as
+  "unresolvable". The same two-pass shape applies at peripheral, register,
+  and field levels.
+- **Ghidra bit-field struct members require bit-contiguity from bit 0.**
+  `StructureDataType` bit packing cannot represent gaps between fields, so a
+  register whose SVD bit fields don't pack from bit 0 upward (e.g. reserved
+  holes, MSB-first layouts that skip bits) cannot become a real bit-field
+  member — the importer must fall back to plain integer members and report
+  the register in the skipped list rather than mispack bits or fail the
+  whole struct.

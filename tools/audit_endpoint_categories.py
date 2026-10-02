@@ -56,6 +56,7 @@ SCANNED_SERVICES = (
     "GadgetService",
     "CfgService",
     "EquateService",
+    "MemoryMapService",
     "HeadlessManagementService",
     "DebuggerService",
     "PromptPolicyService",
