@@ -1,7 +1,7 @@
 {
   "version": "7.0.0",
   "description": "GhidraMCP REST API Endpoint Specification",
-  "total_endpoints": 264,
+  "total_endpoints": 268,
   "categories": {
     "analysis": "Completeness analysis, control flow, similarity, memory inspection",
     "comment": "Plate, decompiler, disassembly and repeatable comments",
@@ -472,6 +472,68 @@
         "headless"
       ],
       "description": "Report of source file strings and their FUN_* functions"
+    },
+    {
+      "path": "/bsim_corpus_status",
+      "method": "GET",
+      "category": "analysis",
+      "params": [
+        "db_path",
+        "limit"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Inventory an existing BSim H2 corpus database — what executables have been ingested (name, path, md5, architecture), the total executable count, and the database's name and call-graph-tracking setting — so an agent knows the corpus's coverage before querying it. Use after bsim_ingest_program and before bsim_query_function: if the firmware's libraries are not in the executable list, query results will be misses. Works without any open program."
+    },
+    {
+      "path": "/bsim_create_database",
+      "method": "POST",
+      "category": "analysis",
+      "params": [
+        "db_path",
+        "template",
+        "name"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Create a new H2 file-based BSim function-similarity database on the server's filesystem — first step of the library-identification workflow: create a local H2 corpus, then ingest reference builds (bsim_ingest_program on known OpenSSL/mbedTLS/zlib firmware images), then query functions in stripped firmware (bsim_query_function) to identify library code and map it to CVEs. Takes an H2 file path WITHOUT the .mv.db extension (the extension is appended automatically); fails if that file already exists. The database is created with call-graph tracking enabled so BSim's signature+callgraph correlation works. Works without any open program."
+    },
+    {
+      "path": "/bsim_ingest_program",
+      "method": "POST",
+      "category": "analysis",
+      "params": [
+        "db_path",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Ingest the currently open program's function signatures into an existing BSim H2 corpus — the middle step of the library-identification workflow: create the corpus (bsim_create_database), ingest a REFERENCE build (a known OpenSSL/mbedTLS/zlib firmware image or the unstripped target itself, so it can be diffed later), then query functions in stripped firmware (bsim_query_function) to identify matching library functions and map them to CVEs. Re-ingesting the same binary is BSim's own upsert keyed on the executable MD5; check bsim_corpus_status first to see what is already in the corpus. Requires a program with a valid executable MD5 (programs imported and analyzed headless have one; if the MD5 is missing run reanalyze first). Requires db_path to point at the corpus created by bsim_create_database."
+    },
+    {
+      "path": "/bsim_query_function",
+      "method": "GET",
+      "category": "analysis",
+      "params": [
+        "db_path",
+        "address",
+        "name",
+        "max",
+        "similarity",
+        "significance",
+        "program"
+      ],
+      "servers": [
+        "gui",
+        "headless"
+      ],
+      "description": "Query one function of the open program against an existing BSim H2 corpus and return its nearest matches — the final step of the library-identification workflow: create the corpus (bsim_create_database), ingest reference builds (bsim_ingest_program on known OpenSSL/mbedTLS/zlib firmware images), then query a function from a STRIPPED firmware to identify library code and its version. An 'exact' or 'high' similarity match on a named library function (e.g. mbedtls_ssl_handshake or EVP_PKEY_decrypt in an ingested OpenSSL build) identifies the library AND its version, which maps directly to known CVEs for that version. similarity is BSim's vector score (0..1); significance is BSim's size-confidence metric. same_executable marks self-hits (match's executable MD5 equals the queried program's MD5) which agents usually skip. Resolve the function by exact start address or exact name (exactly one of the two)."
     },
     {
       "path": "/bulk_fuzzy_match",

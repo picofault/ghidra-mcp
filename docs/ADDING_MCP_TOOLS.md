@@ -398,6 +398,20 @@ Verify mutations by reading state back through an existing read endpoint
   the target map empty and every forward reference gets skipped as
   "unresolvable". The same two-pass shape applies at peripheral, register,
   and field levels.
+- **`ExecutableRecord.setRepository` re-parses your `repo` string through
+  `GhidraURL.toURL`, which only accepts `ghidra:` URLs or absolute local
+  paths.** A transient headless-import DomainFile (no `--project`) yields a
+  project URL that fails that re-parse, and a hand-rolled fallback like
+  `"local://<name>"` is rejected identically — `GenSignatures.openProgram`
+  throws `IllegalArgumentException: Absolute path required` from inside the
+  scan. `ExecutableRecord` documents repo/path as nullable: derive the repo
+  only from a URL that passes `GhidraURL.isGhidraURL(...)`, and pass `null`
+  (plus `null` path) when you cannot. The BSim API is verifiable from real
+  sources, not just javap: `/opt/ghidra/Ghidra/Features/BSim/lib/BSim-src.zip`,
+  and the reference workflow scripts under
+  `/opt/ghidra/Ghidra/Features/BSim/ghidra_scripts/` (e.g. `QueryFunction.java`,
+  `AddProgramToH2BSimDatabaseScript.java`) show the exact intended call
+  sequences for `GenSignatures`/`QueryNearest`.
 - **Ghidra bit-field struct members require bit-contiguity from bit 0.**
   `StructureDataType` bit packing cannot represent gaps between fields, so a
   register whose SVD bit fields don't pack from bit 0 upward (e.g. reserved

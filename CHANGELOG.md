@@ -6,7 +6,7 @@ Complete version history for the Ghidra MCP Server project.
 
 ## v7.0.0 (unreleased) — major: tool consolidation, JSON response contract, MCP conformance suite, an offline test tier, and a release gate that can actually block
 
-**264 tools** — 250 served by the GUI plugin, 237 by the headless server, 223
+**268 tools** — 254 served by the GUI plugin, 241 by the headless server, 227
 by both. The consolidation pass below took the advertised surface from 272 to
 251; `/list_shadowed_globals` and `/batch_get_comments` landed afterwards in
 the same cycle, followed by the `patching` group (`/patch_bytes`,
@@ -23,6 +23,43 @@ the same cycle, followed by the `patching` group (`/patch_bytes`,
 > release workflows' dangling paths, the benchmark fixture that left with it).
 
 ### Added
+
+- **BSim corpus database endpoints** — new `analysis`-category endpoints on
+  both servers for Ghidra's BSim function-similarity database, the
+  library-identification workflow for firmware: create a local H2 corpus,
+  ingest reference builds of known libraries (OpenSSL, mbedTLS, zlib), then
+  query functions in stripped firmware to identify library code and map it
+  to CVEs. `POST /bsim_create_database` creates the H2 file-based corpus
+  (path without the `.mv.db` extension, template default `medium_32`,
+  display name defaulting to the path basename) with call-graph tracking
+  enabled, rejecting a path whose database file already exists.
+  `GET /bsim_corpus_status` inventories an existing corpus — database name,
+  call-graph tracking, total executable count, and per-executable name,
+  path, md5, and architecture (limit-paginated with a truncation note) — so
+  an agent can check coverage after ingest and before
+  `bsim_query_function`. Both work without any open program.
+  `POST /bsim_ingest_program` ingests the open program's function signatures
+  into an existing corpus: it resolves the target program, requires a valid
+  executable MD5 (headless imports compute it; run reanalyze if empty),
+  generates signature+callgraph vectors for every function, and inserts them
+  as one executable record keyed on the MD5 (BSim's own upsert, so
+  re-ingesting the same build is idempotent). Format/Nonfatal insert errors
+  are reported as `status: "skipped"` rather than failures; the response
+  returns the signed/total function counts, the inserted executable/function
+  counts, and the corpus's post-insert executable count.
+  `GET /bsim_query_function` completes the workflow: it resolves one function
+  of the open program by exact start address or exact name (exactly one of
+  the two; an address inside a function body resolves to the containing
+  function), generates its BSim signature, and runs a QueryNearest search
+  against the corpus. Each match reports the executable, its MD5 and
+  architecture, the matched function's name and address, the similarity
+  (BSim's vector score, 0..1), the significance (BSim's size-confidence
+  metric), a 1-based rank, and a confidence tier (exact/high/medium/low) —
+  an exact/high match on a named library function identifies the library
+  and its version for CVE mapping. `same_executable` flags self-hits whose
+  executable MD5 equals the queried program's, and a zero-match response
+  suggests lower similarity/significance thresholds or a corpus coverage
+  check.
 
 - **Memory map / MMIO pack** — new `memorymap`-category group on both servers
   for bare-metal and firmware targets, where the decompiler shows raw magic

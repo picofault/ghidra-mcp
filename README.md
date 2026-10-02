@@ -22,13 +22,13 @@
 >
 > If Ghidra MCP saves you time, consider [sponsoring the project](https://github.com/sponsors/bethington). One-time and recurring support both help fund compatibility updates, production hardening, docs, and new tooling.
 
-A production-ready Model Context Protocol (MCP) server that bridges Ghidra's powerful reverse engineering capabilities with modern AI tools and automation frameworks. **264 MCP tools**, battle-tested AI workflows, and the most comprehensive Ghidra-MCP integration available — now including P-code emulation, live debugger integration, and PCode-graph data flow analysis.
+A production-ready Model Context Protocol (MCP) server that bridges Ghidra's powerful reverse engineering capabilities with modern AI tools and automation frameworks. **268 MCP tools**, battle-tested AI workflows, and the most comprehensive Ghidra-MCP integration available — now including P-code emulation, live debugger integration, and PCode-graph data flow analysis.
 
 ## Why Ghidra MCP?
 
 Most Ghidra MCP implementations give you a handful of read-only tools and call it a day. This project is different — it was built by a reverse engineer who uses it daily on real binaries, not as a demo.
 
-- **264 MCP tools** — 3x more than any competing implementation. Not just read operations — full write access for renaming, typing, commenting, structure creation, script execution, P-code emulation, and live debugging.
+- **268 MCP tools** — 3x more than any competing implementation. Not just read operations — full write access for renaming, typing, commenting, structure creation, script execution, P-code emulation, and live debugging.
 - **Battle-tested AI workflows** — Proven documentation workflows (V5) refined across hundreds of functions. Includes step-by-step prompts, Hungarian notation reference, batch processing guides, and orphaned code discovery.
 - **Production-grade reliability** — Atomic transactions, batch operations (93% API call reduction), configurable timeouts, and graceful error handling. No silent failures.
 - **Cross-binary documentation transfer** — SHA-256 function hash matching propagates documentation across binary versions automatically. Document once, apply everywhere.
@@ -59,7 +59,7 @@ v5.0 moves conventions from "things to remember" into the tool layer, where they
 ### Core MCP Integration
 
 - **Full MCP Compatibility** — Complete implementation of Model Context Protocol
-- **264 MCP tools** — Comprehensive API surface covering every aspect of binary analysis
+- **268 MCP tools** — Comprehensive API surface covering every aspect of binary analysis
 - **Production-Ready Reliability** — Atomic transactions, batch operations, configurable timeouts
 - **Real-time Analysis** — Live integration with Ghidra's analysis engine
 
@@ -444,7 +444,7 @@ uv run bridge-mcp-ghidra --transport sse --mcp-host 127.0.0.1 --mcp-port 8081
 
 #### Lazy tool loading is the default (issue #440)
 
-Advertising all 264 endpoints in a single `tools/list` is over a hard limit for
+Advertising all 268 endpoints in a single `tools/list` is over a hard limit for
 at least one major provider. Gemini compiles function declarations into a
 constrained-decoding state machine and rejects the whole request before any tool
 is ever called:
@@ -860,7 +860,7 @@ python -m tools.setup install-ghidra-deps --ghidra-path "C:\ghidra_12.1.3_PUBLIC
 
 ## 📊 Production Performance
 
-- **MCP Tools**: 264 tools fully implemented (the whole catalog; the GUI plugin serves 250 of them and the headless server 237)
+- **MCP Tools**: 268 tools fully implemented (the whole catalog; the GUI plugin serves 254 of them and the headless server 241)
 - **Speed**: Sub-second response for most operations
 - **Efficiency**: 93% reduction in API calls via batch operations
 - **Reliability**: Atomic transactions with all-or-nothing semantics
@@ -871,9 +871,9 @@ python -m tools.setup install-ghidra-deps --ghidra-path "C:\ghidra_12.1.3_PUBLIC
 
 <!-- BEGIN GENERATED API REFERENCE (tools/gen_readme_api_reference.py) -->
 
-264 MCP tools backed by HTTP endpoints, grouped by catalog category. Generated from [tests/endpoints.json](tests/endpoints.json) by `python -m tools.gen_readme_api_reference --write`; the live schema at `/mcp/schema` is authoritative at runtime. Usage patterns: [docs/prompts/TOOL_USAGE_GUIDE.md](docs/prompts/TOOL_USAGE_GUIDE.md).
+268 MCP tools backed by HTTP endpoints, grouped by catalog category. Generated from [tests/endpoints.json](tests/endpoints.json) by `python -m tools.gen_readme_api_reference --write`; the live schema at `/mcp/schema` is authoritative at runtime. Usage patterns: [docs/prompts/TOOL_USAGE_GUIDE.md](docs/prompts/TOOL_USAGE_GUIDE.md).
 
-223 of these are served by both the GUI plugin and the standalone headless server. The rest are marked **(GUI only)** (27) or **(headless only)** (14) — calling one against the other server returns a 404, not an error message. See `python -m tools.audit_server_scope` for how the split is derived.
+227 of these are served by both the GUI plugin and the standalone headless server. The rest are marked **(GUI only)** (27) or **(headless only)** (14) — calling one against the other server returns a 404, not an error message. See `python -m tools.audit_server_scope` for how the split is derived.
 
 ### Program & Session Management
 
@@ -1086,6 +1086,10 @@ Available on the standalone headless server (`GhidraMCPHeadlessServer`).
 - `analyze_function_complete` - Comprehensive single-call function analysis
 - `analyze_function_completeness` - Analyze documentation completeness
 - `batch_apply_documentation` - Apply all documentation to a function in one call **(GUI only)**
+- `bsim_corpus_status` - Inventory an existing BSim H2 corpus database — what executables have been ingested (name, path, md5, architecture), the total executable count, and the database's name and call-graph-tracking setting — so an agent knows the corpus's coverage before querying it
+- `bsim_create_database` - Create a new H2 file-based BSim function-similarity database on the server's filesystem — first step of the library-identification workflow: create a local H2 corpus, then ingest reference builds (bsim_ingest_program on known OpenSSL/mbedTLS/zlib firmware images), then query functions in stripped firmware (bsim_query_function) to identify library code and map it to CVEs
+- `bsim_ingest_program` - Ingest the currently open program's function signatures into an existing BSim H2 corpus — the middle step of the library-identification workflow: create the corpus (bsim_create_database), ingest a REFERENCE build (a known OpenSSL/mbedTLS/zlib firmware image or the unstripped target itself, so it can be diffed later), then query functions in stripped firmware (bsim_query_function) to identify matching library functions and map them to CVEs
+- `bsim_query_function` - Query one function of the open program against an existing BSim H2 corpus and return its nearest matches — the final step of the library-identification workflow: create the corpus (bsim_create_database), ingest reference builds (bsim_ingest_program on known OpenSSL/mbedTLS/zlib firmware images), then query a function from a STRIPPED firmware to identify library code and its version
 - `configure_analyzer` - Configure an analysis plugin **(headless only)**
 - `detect_array_bounds` - Detect array bounds
 - `find_code_gaps` - Find gaps of undefined bytes between functions in executable memory
@@ -1238,9 +1242,9 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ### Components
 
-- **python/bridge_mcp_ghidra/** — Python MCP server package (ships as the `ghidra-mcp-bridge` wheel; `bridge-mcp-ghidra` console script) that translates MCP protocol to HTTP calls (264 catalog entries)
-- **GhidraMCP.jar** — Ghidra plugin that exposes analysis capabilities via HTTP (250 endpoints)
-- **GhidraMCPHeadlessServer** — Standalone headless server — 237 endpoints, no GUI required
+- **python/bridge_mcp_ghidra/** — Python MCP server package (ships as the `ghidra-mcp-bridge` wheel; `bridge-mcp-ghidra` console script) that translates MCP protocol to HTTP calls (268 catalog entries)
+- **GhidraMCP.jar** — Ghidra plugin that exposes analysis capabilities via HTTP (254 endpoints)
+- **GhidraMCPHeadlessServer** — Standalone headless server — 241 endpoints, no GUI required
 - **ghidra_scripts/** — Collection of automation scripts for common tasks
 
 ## 🔧 Development
@@ -1320,16 +1324,16 @@ python -m tools.setup --help
 ```text
 ghidra-mcp/
 ├── pyproject.toml           # uv project (ghidra-mcp-bridge wheel + dependency groups)
-├── python/bridge_mcp_ghidra/ # MCP server package (Python, 264 catalog entries)
+├── python/bridge_mcp_ghidra/ # MCP server package (Python, 268 catalog entries)
 ├── src/main/java/           # Ghidra plugin + headless server (Java)
 │   └── com/xebyte/
-│       ├── GhidraMCPPlugin.java         # GUI plugin (250 endpoints)
-│       ├── headless/                    # Headless server (237 endpoints)
+│       ├── GhidraMCPPlugin.java         # GUI plugin (254 endpoints)
+│       ├── headless/                    # Headless server (241 endpoints)
 │       └── core/                        # Shared service layer (14 services)
 ├── ghidra_scripts/          # Automation scripts for batch workflows
 ├── tests/                   # Python unit tests + endpoint catalog
 │   ├── unit/               # Catalog consistency, schema, tool function tests
-│   └── endpoints.json      # Endpoint specification (225 entries)
+│   └── endpoints.json      # Endpoint specification (268 entries)
 ├── docs/                    # Documentation
 │   ├── prompts/            # AI workflow prompts (V5 documentation workflows)
 │   ├── releases/           # Version release notes
@@ -1514,9 +1518,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 | Metric | Value |
 | -------- | ------- |
 | **Version** | 7.0.0 |
-| **MCP Tools** | 264 fully implemented |
-| **GUI Endpoints** | 250 (GhidraMCPPlugin) |
-| **Headless Endpoints** | 237 (GhidraMCPHeadlessServer) |
+| **MCP Tools** | 268 fully implemented |
+| **GUI Endpoints** | 254 (GhidraMCPPlugin) |
+| **Headless Endpoints** | 241 (GhidraMCPHeadlessServer) |
 | **Compilation** | ✅ 100% success |
 | **Batch Efficiency** | 93% API call reduction |
 | **AI Workflows** | 7 proven documentation workflows |

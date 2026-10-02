@@ -1,6 +1,7 @@
 package com.xebyte.offline;
 
 import com.xebyte.core.AnalysisService;
+import com.xebyte.core.BsimService;
 import com.xebyte.core.BinaryComparisonService;
 import com.xebyte.core.CfgService;
 import com.xebyte.core.CommentService;
@@ -61,6 +62,7 @@ public final class ServiceFactory {
         CfgService cfgService = new CfgService(provider);
         EquateService equateService = new EquateService(provider, ts);
         MemoryMapService memoryMapService = new MemoryMapService(provider, ts);
+        BsimService bsimService = new BsimService(provider, ts);
         PromptPolicyService promptPolicyService = new PromptPolicyService();
 
         HeadlessManagementService headlessManagementService =
@@ -87,6 +89,7 @@ public final class ServiceFactory {
             cfgService,
             equateService,
             memoryMapService,
+            bsimService,
             headlessManagementService,
             debuggerService,
             promptPolicyService,

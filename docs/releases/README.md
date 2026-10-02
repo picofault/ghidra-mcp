@@ -16,8 +16,8 @@ from **272 to 251 tools**: five rename tools collapse into `rename_symbol`, four
 variable-type setters into `set_variable_type`, six `batch_*` tools into their
 one-or-many survivors, and the comment family into `set_comment` / `get_comment`
 with an explicit kind. Two endpoints were added later in the same cycle
-(`/list_shadowed_globals`, `/batch_get_comments`), so **7.0.0 ships 264 tools**
-— 250 served by the GUI plugin, 237 by the headless server, 223 by both. No
+(`/list_shadowed_globals`, `/batch_get_comments`), so **7.0.0 ships 268 tools**
+— 254 served by the GUI plugin, 241 by the headless server, 227 by both. No
 capability is removed — every operation the deleted tools performed is
 reachable through the survivor — and there are no backward-compatibility
 aliases. `tests/unit/test_migration_guide_successors.py` proves that: all 23
